@@ -26,7 +26,7 @@
     const solver = new Solver(16 * 48, 10 * 48);
     solver.gravity.y = 500;
     solver.borderFriction = 0.1;
-    solver.boundsMargin = 5;
+    solver.boundsMargin = 8;
 
     function resize() {
       screen.canvas.width = window.innerWidth;
@@ -38,24 +38,24 @@
     window.onresize = resize;
 
     const interactionHandler = new InteractionHandler(screen, solver);
-    interactionHandler.particleRadius = 8;
+    interactionHandler.nodeRadius = 8;
 
-    const renderer = new Renderer(screen, solver.particles, solver.constraints);
-    renderer.particleRadius = 5;
+    const renderer = new Renderer(screen, solver.nodes, solver.constraints);
+    renderer.nodeRadius = 8;
 
 
 
-    solver.particles.push(new Particle(new Vector(100, 100)));
-    solver.particles.push(new Particle(new Vector(200, 100)));
-    solver.particles.push(new Particle(new Vector(200, 200)));
-    solver.particles.push(new Particle(new Vector(100, 200)));
-    solver.constraints.push(new Constraint(solver.particles[0], solver.particles[1], 100, 0.15));
-    solver.constraints.push(new Constraint(solver.particles[1], solver.particles[2], 100, 0.15));
-    solver.constraints.push(new Constraint(solver.particles[2], solver.particles[3], 100, 0.15));
-    solver.constraints.push(new Constraint(solver.particles[3], solver.particles[0], 100, 0.15));
+    solver.nodes.push(new Node(new Vector(100, 100)));
+    solver.nodes.push(new Node(new Vector(200, 100)));
+    solver.nodes.push(new Node(new Vector(200, 200)));
+    solver.nodes.push(new Node(new Vector(100, 200)));
+    solver.constraints.push(new Constraint(solver.nodes[0], solver.nodes[1], 100, 0.15));
+    solver.constraints.push(new Constraint(solver.nodes[1], solver.nodes[2], 100, 0.15));
+    solver.constraints.push(new Constraint(solver.nodes[2], solver.nodes[3], 100, 0.15));
+    solver.constraints.push(new Constraint(solver.nodes[3], solver.nodes[0], 100, 0.15));
 
-    solver.constraints.push(new Constraint(solver.particles[0], solver.particles[2], Math.sqrt(100*100 + 100*100), 0.15));
-    solver.constraints.push(new Constraint(solver.particles[1], solver.particles[3], Math.sqrt(100*100 + 100*100), 0.15));
+    solver.constraints.push(new Constraint(solver.nodes[0], solver.nodes[2], Math.sqrt(100 * 100 + 100 * 100), 0.15));
+    solver.constraints.push(new Constraint(solver.nodes[1], solver.nodes[3], Math.sqrt(100 * 100 + 100 * 100), 0.15));
 
 
 
