@@ -207,7 +207,7 @@ class InteractionHandler {
     this.solver.particles.forEach(particle => {
       if (this.inputHandler.mouse.down) {
         let length = particle.position.subtract(this.inputHandler.mouse.position).length();
-        // if (length < this.particleRadius)
+        if (length < this.particleRadius)
           this.currentParticle = particle;
       } else
         this.currentParticle = null;
