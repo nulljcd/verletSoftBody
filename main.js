@@ -183,13 +183,23 @@ class InputHandler {
     window.addEventListener('mousedown', e => {
       this.mouse.down = true;
     });
-
     window.addEventListener('mouseup', e => {
       this.mouse.down = false;
     });
     window.addEventListener('mousemove', e => {
       this.mouse.position.x = e.clientX;
       this.mouse.position.y = e.clientY;
+    });
+
+    window.addEventListener('touchstart', e => {
+      this.mouse.down = true;
+    });
+    window.addEventListener('touchend', e => {
+      this.mouse.down = false;
+    });
+    window.addEventListener('touchmove', e => {
+      this.mouse.position.x = e.touches[0].clientX;
+      this.mouse.position.y = e.touches[0].clientY;
     });
   }
 }
