@@ -104,7 +104,7 @@ class Solver {
     this.particles.forEach(particle => particle.applyForce(this.gravity));
   }
 
-  updates() {
+  updatePositions() {
     this.particles.forEach(particle => particle.update(this.deltaTime));
   }
 
@@ -139,7 +139,7 @@ class Solver {
 
   step() {
     this.applyGravity();
-    this.updates();
+    this.updatePositions();
     this.applyBounds();
     this.updateConstraints();
   }
@@ -203,18 +203,11 @@ class InteractionHandler {
     this.currentParticle;
   }
 
-  checkParticlePointIntersection(particle, mousePosition) {
-    let length = particle.position.subtract(mousePosition).length();
-
-    if (length < this.particleRadius)
-      return true;
-    return false;
-  }
-
   update() {
     this.solver.particles.forEach(particle => {
       if (this.inputHandler.mouse.down) {
-        if (this.checkParticlePointIntersection(particle, this.inputHandler.mouse.position))
+        let length = particle.position.subtract(this.inputHandler.mouse.position).length();
+        // if (length < this.particleRadius)
           this.currentParticle = particle;
       } else
         this.currentParticle = null;
