@@ -37,10 +37,10 @@
     resize();
     window.onresize = resize;
 
-    const interactionHandler = new InteractionHandler(screen, solver);
+    const interactionHandler = new InteractionHandler(solver);
     interactionHandler.nodeRadius = 8;
 
-    const renderer = new Renderer(screen, solver.nodes, solver.constraints);
+    const renderer = new Renderer(solver, screen);
     renderer.nodeRadius = 8;
 
 
