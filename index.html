@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>verletPhysics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      background-color: #293148;
+    }
+
+    #canvas {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="main.js"></script>
+  <script>
+    const screen = new Screen(document.querySelector('#canvas'), 16 * 48, 10 * 48);
+
+    const solver = new Solver(16 * 48, 10 * 48);
+    solver.gravity.y = 500;
+    solver.borderFriction = 0.1;
+    solver.boundsMargin = 5;
+
+    function resize() {
+      screen.canvas.width = window.innerWidth;
+      screen.canvas.height = window.innerHeight;
+      solver.width = screen.canvas.width;
+      solver.height = screen.canvas.height;
+    }
+    resize();
+    window.onresize = resize;
+
+    const interactionHandler = new InteractionHandler(screen, solver);
+    interactionHandler.particleRadius = 8;
+
+    const renderer = new Renderer(screen, solver.particles, solver.constraints);
+    renderer.particleRadius = 5;
+
+
+
+    solver.particles.push(new Particle(new Vector(100, 100)));
+    solver.particles.push(new Particle(new Vector(200, 100)));
+    solver.particles.push(new Particle(new Vector(200, 200)));
+    solver.particles.push(new Particle(new Vector(100, 200)));
+    solver.constraints.push(new Constraint(solver.particles[0], solver.particles[1], 100, 0.15));
+    solver.constraints.push(new Constraint(solver.particles[1], solver.particles[2], 100, 0.15));
+    solver.constraints.push(new Constraint(solver.particles[2], solver.particles[3], 100, 0.15));
+    solver.constraints.push(new Constraint(solver.particles[3], solver.particles[0], 100, 0.15));
+
+    solver.constraints.push(new Constraint(solver.particles[0], solver.particles[2], Math.sqrt(100*100 + 100*100), 0.15));
+    solver.constraints.push(new Constraint(solver.particles[1], solver.particles[3], Math.sqrt(100*100 + 100*100), 0.15));
+
+
+
+    function run() {
+      requestAnimationFrame(run);
+
+      solver.step();
+      renderer.render();
+      interactionHandler.update();
+    }
+
+    run();
+  </script>
+</body>
+
+</html>
