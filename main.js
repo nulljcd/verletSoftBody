@@ -80,7 +80,7 @@ class Constraint {
     const d = this.node0.position.subtract(this.node1.position);
     const f = d.normal().multiplyScaler(0.5 * this.stiffness * (d.length() - this.length));
     this.node0.applyImpulse(f.multiplyScaler(-1));
-    this.node1.applyImpulse(f.multiplyScaler(1));
+    this.node1.applyImpulse(f);
   }
 }
 
@@ -113,22 +113,50 @@ class Solver {
       if (node.position.x < this.boundsMargin) {
         node.position.x = this.boundsMargin;
         node.positionLast.x = node.position.x;
-        node.positionLast.y = node.position.y - node.velocity.y * (1 - this.borderFriction);
+        let j = node.velocity.y;
+        let k = Math.abs(node.velocity.x * this.borderFriction);
+        let t = Math.sign(j);
+        if (Math.abs(j) <= k) {
+          if (j * t > 0)
+            node.position.y -= j;
+        } else if (k > 0)
+          node.position.y -= k * t;
       }
       if (node.position.x > this.width - this.boundsMargin) {
         node.position.x = this.width - this.boundsMargin;
         node.positionLast.x = node.position.x;
-        node.positionLast.y = node.position.y - node.velocity.y * (1 - this.borderFriction);
+        let j = node.velocity.y;
+        let k = Math.abs(node.velocity.x * this.borderFriction);
+        let t = Math.sign(j);
+        if (Math.abs(j) <= k) {
+          if (j * t > 0)
+            node.position.y -= j;
+        } else if (k > 0)
+          node.position.y -= k * t;
       }
       if (node.position.y < this.boundsMargin) {
         node.position.y = this.boundsMargin;
         node.positionLast.y = node.position.y;
-        node.positionLast.x = node.position.x - node.velocity.x * (1 - this.borderFriction);
+        let j = node.velocity.x;
+        let k = Math.abs(node.velocity.y * this.borderFriction);
+        let t = Math.sign(j);
+        if (Math.abs(j) <= k) {
+          if (j * t > 0)
+            node.position.x -= j;
+        } else if (k > 0)
+          node.position.x -= k * t;
       }
       if (node.position.y > this.height - this.boundsMargin) {
         node.position.y = this.height - this.boundsMargin;
         node.positionLast.y = node.position.y;
-        node.positionLast.x = node.position.x - node.velocity.x * (1 - this.borderFriction);
+        let j = node.velocity.x;
+        let k = Math.abs(node.velocity.y * this.borderFriction);
+        let t = Math.sign(j);
+        if (Math.abs(j) <= k) {
+          if (j * t > 0)
+            node.position.x -= j;
+        } else if (k > 0)
+          node.position.x -= k * t;
       }
     });
   }
