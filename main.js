@@ -44,7 +44,7 @@ class Vector {
   }
 }
 
-class Particle {
+class Node {
   constructor(position) {
     this.position = position;
     this.positionLast = this.position.clone();
@@ -69,18 +69,18 @@ class Particle {
 }
 
 class Constraint {
-  constructor(particle0, particle1, length, stiffness) {
-    this.particle0 = particle0;
-    this.particle1 = particle1;
+  constructor(node0, node1, length, stiffness) {
+    this.node0 = node0;
+    this.node1 = node1;
     this.length = length;
     this.stiffness = stiffness;
   }
 
   update() {
-    const d = this.particle0.position.subtract(this.particle1.position);
+    const d = this.node0.position.subtract(this.node1.position);
     const f = d.normal().multiplyScaler(0.5 * this.stiffness * (d.length() - this.length));
-    this.particle0.applyImpulse(f.multiplyScaler(-1));
-    this.particle1.applyImpulse(f.multiplyScaler(1));
+    this.node0.applyImpulse(f.multiplyScaler(-1));
+    this.node1.applyImpulse(f.multiplyScaler(1));
   }
 }
 
@@ -94,41 +94,41 @@ class Solver {
 
     this.boundsMargin = 0;
 
-    this.particles = [];
+    this.nodes = [];
     this.constraints = [];
 
     this.onUpdate = undefined;
   }
 
   applyGravity() {
-    this.particles.forEach(particle => particle.applyForce(this.gravity));
+    this.nodes.forEach(node => node.applyForce(this.gravity));
   }
 
   updatePositions() {
-    this.particles.forEach(particle => particle.update(this.deltaTime));
+    this.nodes.forEach(node => node.update(this.deltaTime));
   }
 
   applyBounds() {
-    this.particles.forEach(particle => {
-      if (particle.position.x < this.boundsMargin) {
-        particle.position.x = this.boundsMargin;
-        particle.positionLast.x = particle.position.x;
-        particle.positionLast.y = particle.position.y - particle.velocity.y*(1-this.borderFriction);
+    this.nodes.forEach(node => {
+      if (node.position.x < this.boundsMargin) {
+        node.position.x = this.boundsMargin;
+        node.positionLast.x = node.position.x;
+        node.positionLast.y = node.position.y - node.velocity.y * (1 - this.borderFriction);
       }
-      if (particle.position.x > this.width-this.boundsMargin) {
-        particle.position.x = this.width-this.boundsMargin;
-        particle.positionLast.x = particle.position.x;
-        particle.positionLast.y = particle.position.y - particle.velocity.y*(1-this.borderFriction);
+      if (node.position.x > this.width - this.boundsMargin) {
+        node.position.x = this.width - this.boundsMargin;
+        node.positionLast.x = node.position.x;
+        node.positionLast.y = node.position.y - node.velocity.y * (1 - this.borderFriction);
       }
-      if (particle.position.y < this.boundsMargin) {
-        particle.position.y = this.boundsMargin;
-        particle.positionLast.y = particle.position.y;
-        particle.positionLast.x = particle.position.x - particle.velocity.x*(1-this.borderFriction);
+      if (node.position.y < this.boundsMargin) {
+        node.position.y = this.boundsMargin;
+        node.positionLast.y = node.position.y;
+        node.positionLast.x = node.position.x - node.velocity.x * (1 - this.borderFriction);
       }
-      if (particle.position.y > this.height-this.boundsMargin) {
-        particle.position.y = this.height-this.boundsMargin;
-        particle.positionLast.y = particle.position.y;
-        particle.positionLast.x = particle.position.x - particle.velocity.x*(1-this.borderFriction);
+      if (node.position.y > this.height - this.boundsMargin) {
+        node.position.y = this.height - this.boundsMargin;
+        node.positionLast.y = node.position.y;
+        node.positionLast.x = node.position.x - node.velocity.x * (1 - this.borderFriction);
       }
     });
   }
@@ -146,12 +146,12 @@ class Solver {
 }
 
 class Renderer {
-  constructor(screen, particles, constraints) {
+  constructor(screen, nodes, constraints) {
     this.screen = screen;
-    this.particles = particles;
+    this.nodes = nodes;
     this.constraints = constraints;
 
-    this.particleRadius = 5;
+    this.nodeRadius = 5;
   }
 
   render() {
@@ -162,12 +162,14 @@ class Renderer {
     this.screen.ctx.lineWidth = 2;
     this.constraints.forEach(constraint => {
       this.screen.ctx.beginPath();
-      this.screen.ctx.moveTo(constraint.particle0.position.x, constraint.particle0.position.y);
-      this.screen.ctx.lineTo(constraint.particle1.position.x, constraint.particle1.position.y);
+      this.screen.ctx.moveTo(constraint.node0.position.x, constraint.node0.position.y);
+      this.screen.ctx.lineTo(constraint.node1.position.x, constraint.node1.position.y);
       this.screen.ctx.stroke();
     });
-    this.particles.forEach(particle => {
-      this.screen.ctx.fillRect(particle.position.x - this.particleRadius, particle.position.y - this.particleRadius, this.particleRadius * 2, this.particleRadius * 2);
+    this.nodes.forEach(node => {
+      this.screen.ctx.beginPath();
+      this.screen.ctx.arc(node.position.x, node.position.y, this.nodeRadius, 0, 2 * Math.PI);
+      this.screen.ctx.fill();
     });
   }
 }
@@ -177,7 +179,7 @@ class InputHandler {
     this.screen = screen;
     this.mouse = {
       position: new Vector(),
-      down: false 
+      down: false
     }
 
     window.addEventListener('mousedown', e => {
@@ -199,20 +201,20 @@ class InteractionHandler {
     this.screen = screen;
     this.solver = solver;
     this.inputHandler = new InputHandler(screen);
-    this.particleRadius = 5;
-    this.currentParticle;
+    this.nodeRadius = 5;
+    this.currentnode;
   }
 
   update() {
-    this.solver.particles.forEach(particle => {
+    this.solver.nodes.forEach(node => {
       if (this.inputHandler.mouse.down) {
-        let length = particle.position.subtract(this.inputHandler.mouse.position).length();
-        if (length < this.particleRadius)
-          this.currentParticle = particle;
+        let length = node.position.subtract(this.inputHandler.mouse.position).length();
+        if (length < this.nodeRadius)
+          this.currentnode = node;
       } else
-        this.currentParticle = null;
-      if (this.currentParticle)
-        this.currentParticle.position = this.inputHandler.mouse.position.clone();
+        this.currentnode = null;
+      if (this.currentnode)
+        this.currentnode.position = this.inputHandler.mouse.position.clone();
     });
   }
 }
