@@ -149,7 +149,7 @@ class Renderer {
   constructor(solver, screen) {
     this.solver = solver;
     this.screen = screen;
-    
+
     this.nodeRadius = 5;
   }
 
@@ -207,9 +207,11 @@ class InteractionHandler {
       if (this.inputHandler.mouse.down) {
         let length = node.position.subtract(this.inputHandler.mouse.position).length();
         if (length < this.nodeRadius)
-          this.currentnode = node;
-      } else
+          if (this.currentnode == node || this.currentnode == null)
+            this.currentnode = node;
+      } else {
         this.currentnode = null;
+      }
       if (this.currentnode)
         this.currentnode.position = this.inputHandler.mouse.position.clone();
     });
