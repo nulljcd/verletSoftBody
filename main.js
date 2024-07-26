@@ -146,11 +146,10 @@ class Solver {
 }
 
 class Renderer {
-  constructor(screen, nodes, constraints) {
+  constructor(solver, screen) {
+    this.solver = solver;
     this.screen = screen;
-    this.nodes = nodes;
-    this.constraints = constraints;
-
+    
     this.nodeRadius = 5;
   }
 
@@ -160,13 +159,13 @@ class Renderer {
     this.screen.ctx.fillStyle = '#fff';
     this.screen.ctx.strokeStyle = '#f33';
     this.screen.ctx.lineWidth = 2;
-    this.constraints.forEach(constraint => {
+    this.solver.constraints.forEach(constraint => {
       this.screen.ctx.beginPath();
       this.screen.ctx.moveTo(constraint.node0.position.x, constraint.node0.position.y);
       this.screen.ctx.lineTo(constraint.node1.position.x, constraint.node1.position.y);
       this.screen.ctx.stroke();
     });
-    this.nodes.forEach(node => {
+    this.solver.nodes.forEach(node => {
       this.screen.ctx.beginPath();
       this.screen.ctx.arc(node.position.x, node.position.y, this.nodeRadius, 0, 2 * Math.PI);
       this.screen.ctx.fill();
@@ -175,8 +174,7 @@ class Renderer {
 }
 
 class InputHandler {
-  constructor(screen) {
-    this.screen = screen;
+  constructor() {
     this.mouse = {
       position: new Vector(),
       down: false
@@ -197,10 +195,9 @@ class InputHandler {
 }
 
 class InteractionHandler {
-  constructor(screen, solver) {
-    this.screen = screen;
+  constructor(solver) {
     this.solver = solver;
-    this.inputHandler = new InputHandler(screen);
+    this.inputHandler = new InputHandler();
     this.nodeRadius = 5;
     this.currentnode;
   }
