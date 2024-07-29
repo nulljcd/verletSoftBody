@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>title</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      overflow: hidden;
+    }
+
+    #canvas {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="Main.js"></script>
+  <script>
+    const physicsWorld = new Physics.World();
+    const renderer = new Renderer(document.querySelector('#canvas'), physicsWorld);
+    const interactionHandler = new InteractionHandler(physicsWorld);
+
+    physicsWorld.nodes.push(...[
+      new Physics.Node(new Geometry.Vector(100, 100)),
+      new Physics.Node(new Geometry.Vector(200, 100)),
+      new Physics.Node(new Geometry.Vector(200, 200)),
+      new Physics.Node(new Geometry.Vector(100, 200)),
+    ]);
+    physicsWorld.springs.push(...[
+      new Physics.Spring([physicsWorld.nodes[0], physicsWorld.nodes[1]], 0.2),
+      new Physics.Spring([physicsWorld.nodes[1], physicsWorld.nodes[2]], 0.2),
+      new Physics.Spring([physicsWorld.nodes[2], physicsWorld.nodes[3]], 0.2),
+      new Physics.Spring([physicsWorld.nodes[3], physicsWorld.nodes[0]], 0.2),
+      new Physics.Spring([physicsWorld.nodes[0], physicsWorld.nodes[2]], 0.2),
+      new Physics.Spring([physicsWorld.nodes[1], physicsWorld.nodes[3]], 0.2),
+    ]);
+    physicsWorld.behaviors.push(new Physics.Behavior.GravityBehavior(new Geometry.Vector(0, 400)));
+    physicsWorld.constraints.push(new Physics.Constraint.RectangleConstraint(new Geometry.Rectangle(new Geometry.Vector(0, 0), new Geometry.Vector(300, 300))));
+
+    function resize() {
+      renderer.canvas.width = window.innerWidth;
+      renderer.canvas.height = window.innerHeight;
+      physicsWorld.constraints[0].rectangle.scale.x = window.innerWidth;
+      physicsWorld.constraints[0].rectangle.scale.y = window.innerHeight;
+    }
+    resize();
+    window.onresize = resize;
+
+    function run() {
+      requestAnimationFrame(run);
+
+      interactionHandler.update();
+      physicsWorld.step();
+
+      renderer.render();
+    }
+
+    run();
+  </script>
+</body>
+
+</html>
