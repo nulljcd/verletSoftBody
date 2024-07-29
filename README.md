@@ -2,7 +2,6 @@
 A simple verlet soft body physics demo.
 
 - uses a point mass and spring system
-- has simple border collision with friction
 - mobile device friendly
 
 ### resources
