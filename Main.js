@@ -113,7 +113,7 @@ class Physics {
         if (this.nodes[0].isStatic) {
           this.nodes[1].applyImpulse(movement);
         } else if (this.nodes[1].isStatic) {
-          this.nodes[0].applyImpulse(movement.multiplyScaler(-0.2));
+          this.nodes[0].applyImpulse(movement.multiplyScaler(-0.5));
         } else {
           this.nodes[0].applyImpulse(movement.multiplyScaler(-0.5));
           this.nodes[1].applyImpulse(movement.multiplyScaler(0.5));
